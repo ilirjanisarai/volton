@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOLTON · Newsroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+  :root{
+    --brand:#16a34a; --brand-2:#0f7a33;
+    --line:#e6e7eb; --muted:#6b7280;
+    --surface:#ffffff; --bg:#f8fafc; --shadow:0 12px 30px rgba(2,8,23,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --surface:#121416; --bg:#0e1012; --line:#1f232a; --muted:#a3aab8; --shadow:0 12px 30px rgba(0,0,0,.35); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:var(--bg); color:#111827}
+  .wrap{max-width:1100px; margin:24px auto; padding:0 16px}
+  .hero{
+    background:linear-gradient(135deg, rgba(22,163,74,.08), rgba(22,163,74,0)), var(--surface);
+    border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow);
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .hero h2{margin:0; color:var(--brand)}
+  .muted{color:var(--muted)}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+  .btn{padding:9px 12px; border-radius:10px; border:1px solid var(--line); background:#fff; font-weight:800; cursor:pointer}
+  .btn-primary{background:linear-gradient(180deg,var(--brand),var(--brand-2)); color:#fff; border-color:transparent}
+  .btn-danger{background:linear-gradient(180deg,#b91c1c,#991b1b); color:#fff; border-color:transparent}
+
+  .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; margin-top:14px}
+  @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
+  /* Feed (majtas) */
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
+  .feed{padding:10px}
+  .filters{display:flex; gap:8px; flex-wrap:wrap; padding:10px}
+  .filters input,.filters select{padding:10px; border:1px solid var(--line); border-radius:10px; font-weight:600}
+  .news-list{display:grid; gap:10px; padding:10px}
+  .news-item{border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff}
+  .news-item h4{margin:0 0 4px 0}
+  .news-meta{font-size:12px; color:var(--muted); display:flex; gap:8px; flex-wrap:wrap}
+  .tag{display:inline-block; padding:3px 8px; border-radius:999px; border:1px solid var(--line); background:#dcfce7; font-size:12px}
+  .news-actions{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .news-actions a{font-weight:800; text-decoration:none; color:var(--brand)}
+  .news-actions button{border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 8px; cursor:pointer; font-weight:700}
+
+  /* Editor (djathtas) */
+  .editor{padding:12px}
+  .editor h3{margin:0 0 8px 0}
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .form-grid input,.form-grid select,.form-grid textarea{
+    border:1px solid var(--line); border-radius:10px; padding:10px; font-weight:600; width:100%
+  }
+  .form-grid textarea{grid-column:1/-1; height:120px}
+  .info{font-size:12px; color:var(--muted)}
+
+  /* Admin login */
+  .login{padding:12px}
+  .login .box{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px}
+  .login input{border:1px solid var(--line); border-radius:10px; padding:10px; font-weight:600; width:100%}
+
+  /* Modal reader */
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; padding:16px; z-index:10}
+  .modal .panel{background:#fff; max-width:800px; width:100%; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow); padding:16px}
+  .modal .panel h3{margin-top:0}
+  .modal .close{float:right; cursor:pointer; font-weight:800}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <i class="fa-solid fa-newspaper" style="color:var(--brand);font-size:24px"></i>
+      <div>
+        <h2>Newsroom</h2>
+        <div class="muted">Shto/menaxho lajme të brendshme. Feed i dukshëm për të gjithë; Editor vetëm për admin.</div>
+      </div>
+      <div class="spacer"></div>
+      <div id="adminStatus" class="muted"></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="newBlank()">+ Lajm i ri</button>
+      <button class="btn" onclick="exportJSON()"><i class="fa-solid fa-file-export"></i> Export JSON</button>
+      <label class="btn">
+        <i class="fa-solid fa-file-import"></i> Import JSON
+        <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importJSON(this.files[0])">
+      </label>
+      <button class="btn btn-danger" onclick="clearAll()" title="Fshi të gjitha lajmet nga ky shfletues">Fshi të gjitha</button>
+      <div class="muted" id="counter"></div>
+    </div>
+
+    <div class="grid">
+      <!-- FEED (gjithmonë i dukshëm) -->
+      <div class="card feed">
+        <div class="filters">
+          <input id="q" type="search" placeholder="Kërko me titull/etiketë…">
+          <select id="f-tag" onchange="render()">
+            <option value="">— Të gjitha etiketat —</option>
+            <option>Company</option>
+            <option>Press</option>
+            <option>Market</option>
+            <option>HR</option>
+            <option>Ops</option>
+          </select>
+          <select id="f-sort" onchange="render()">
+            <option value="desc">Më të rejat</option>
+            <option value="asc">Më të vjetrat</option>
+          </select>
+          <button class="btn" onclick="render()">Filtro</button>
+        </div>
+        <div class="news-list" id="list"></div>
+      </div>
+
+      <!-- LOGIN ADMIN (shfaqet kur s’je admin) -->
+      <div class="card login" id="loginCard" style="display:none">
+        <h3>Hyrje Admin</h3>
+        <div class="box">
+          <label for="adminUser" class="muted" style="display:block;margin-bottom:6px">Emri i përdoruesit (ops.)</label>
+          <input id="adminUser" placeholder="p.sh. administrator" style="margin-bottom:10px">
+          <label for="adminPass" class="muted" style="display:block;margin-bottom:6px">Fjalëkalimi</label>
+          <input id="adminPass" type="password" placeholder="Vendos fjalëkalimin">
+          <div class="toolbar" style="margin-top:10px">
+            <button class="btn btn-primary" onclick="loginAdmin()">Hyr si Admin</button>
+          </div>
+          <div class="muted" style="margin-top:6px">Kujdes: ky është kontroll i thjeshtë në front-end (i mjaftueshëm për intranet statik).</div>
+        </div>
+      </div>
+
+      <!-- EDITOR (vetëm për admin) -->
+      <div class="card editor" id="editorSection" style="display:none">
+        <h3>Editor</h3>
+        <div class="form-grid">
+          <input id="e_title" placeholder="Titulli" />
+          <input id="e_date" type="date" />
+          <select id="e_tag">
+            <option value="">— Etiketa —</option>
+            <option>Company</option>
+            <option>Press</option>
+            <option>Market</option>
+            <option>HR</option>
+            <option>Ops</option>
+          </select>
+          <input id="e_link" placeholder="Link i jashtëm (ops.) https://…" />
+          <textarea id="e_summary" placeholder="Përmbledhje / përmbajtje e shkurtër"></textarea>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="saveCurrent()">Ruaj</button>
+          <button class="btn" onclick="newBlank()">Pastro</button>
+          <button class="btn btn-danger" onclick="logoutAdmin()"><i class="fa-solid fa-door-open"></i> Dalje Admin</button>
+          <div class="info">Tip: nëse vendos link, “Hap” e çon artikullin në tab të ri; përndryshe mund ta lexosh në modal.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal leximi -->
+  <div class="modal" id="modal">
+    <div class="panel">
+      <span class="close" onclick="closeModal()">✕</span>
+      <h3 id="m_title">—</h3>
+      <div class="news-meta" id="m_meta"></div>
+      <p id="m_body" style="margin-top:8px"></p>
+    </div>
+  </div>
+
+<script>
+  /* ================== Admin Gate ================== */
+  const ADMIN_PASSWORD = 'volton2025'; // ⚠️ NDRYSHOJE para publikimit
+  const LS_KEY_ADMIN = 'VOLTON_NEWS_IS_ADMIN';
+
+  function isAdmin(){ return localStorage.getItem(LS_KEY_ADMIN) === 'true'; }
+  function setAdmin(flag){ localStorage.setItem(LS_KEY_ADMIN, flag ? 'true' : 'false'); }
+
+  function applyAdminUI(){
+    document.getElementById('editorSection').style.display = isAdmin() ? 'block' : 'hidden';
+    document.getElementById('loginCard').style.display = isAdmin() ? 'none' : 'block';
+    document.getElementById('adminStatus').textContent = isAdmin() ? 'Status: Admin' : 'Status: Viewer';
+    // nëse viewer, fshih editorin me display:none (jo "hidden")
+    if(!isAdmin()){
+      document.getElementById('editorSection').style.display = 'none';
+    }
+  }
+
+  function loginAdmin(){
+    const pass = (document.getElementById('adminPass').value||'').trim();
+    if(pass === ADMIN_PASSWORD){
+      setAdmin(true);
+      document.getElementById('adminPass').value = '';
+      applyAdminUI();
+      alert('Hyrje si admin u krye.');
+    }else{
+      alert('Fjalëkalim i gabuar.');
+    }
+  }
+  function logoutAdmin(){
+    if(!confirm('Dil nga mënyra Admin?')) return;
+    setAdmin(false);
+    applyAdminUI();
+  }
+
+  /* ================== Persistencë & Feed ================== */
+  const LS_KEY = 'VOLTON_NEWSROOM_V1';
+  let data = load() || seed();
+  let currentId = null;
+
+  // ===== Persistence
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY)||'null'); }catch{ return null; }
+  }
+  function save(){ localStorage.setItem(LS_KEY, JSON.stringify(data)); }
+
+  // ===== Seed (shembuj)
+  function seed(){
+    const s = [
+      {id:uid(), title:'Nis pilotimi i faturimit të ri', date:today(-5), tag:'Company', summary:'Ekipi i faturimit teston procesin e ri në grupin MV.', link:''},
+      {id:uid(), title:'Çmimet e tregut – raport javor', date:today(-2), tag:'Market', summary:'Tendencë zbritëse në koston mesatare mujore.', link:''},
+      {id:uid(), title:'Komunikatë për shtyp', date:today(-1), tag:'Press', summary:'Volton shpall marrëveshje të re partneriteti.', link:'https://volton.al'}
+    ];
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+    return s;
+  }
+  function uid(){ return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+  function today(offsetDays=0){ const d=new Date(); d.setDate(d.getDate()+offsetDays); return d.toISOString().slice(0,10); }
+
+  // ===== Render feed
+  document.getElementById('q').addEventListener('input', ()=> render());
+  function render(){
+    const list = document.getElementById('list');
+    const q = (document.getElementById('q').value||'').toLowerCase().trim();
+    const tag = document.getElementById('f-tag').value;
+    const sort = document.getElementById('f-sort').value;
+
+    let items = [...data];
+    if(q){ items = items.filter(x => (x.title+x.summary+(x.tag||'')).toLowerCase().includes(q)); }
+    if(tag){ items = items.filter(x => (x.tag===tag)); }
+    items.sort((a,b)=> sort==='asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
+
+    document.getElementById('counter').textContent = `${items.length} artikuj`;
+
+    list.innerHTML = items.map(x=>`
+      <div class="news-item">
+        <h4>${escapeHtml(x.title)}</h4>
+        <div class="news-meta">
+          <span>${x.date||'-'}</span>
+          ${x.tag ? `<span class="tag">${escapeHtml(x.tag)}</span>`:''}
+        </div>
+        <div style="margin-top:6px">${escapeHtml(x.summary||'')}</div>
+        <div class="news-actions">
+          ${x.link ? `<a href="${escapeAttr(x.link)}" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Hap</a>` :
+                      `<button onclick="readInModal('${x.id}')"><i class="fa-regular fa-eye"></i> Lexo</button>`}
+          ${isAdmin() ? `<button onclick="editItem('${x.id}')"><i class="fa-solid fa-pen"></i> Redakto</button>
+                         <button onclick="removeItem('${x.id}')"><i class="fa-solid fa-trash"></i> Fshi</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ===== Editor actions (vetëm kur admin)
+  function newBlank(){
+    if(!isAdmin()){ alert('Ky veprim kërkon akses admin.'); return; }
+    currentId = null;
+    document.getElementById('e_title').value = '';
+    document.getElementById('e_date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('e_tag').value = '';
+    document.getElementById('e_link').value = '';
+    document.getElementById('e_summary').value = '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function editItem(id){
+    if(!isAdmin()){ alert('Ky veprim kërkon akses admin.'); return; }
+    const x = data.find(i=>i.id===id); if(!x) return;
+    currentId = id;
+    document.getElementById('e_title').value = x.title||'';
+    document.getElementById('e_date').value = x.date||'';
+    document.getElementById('e_tag').value = x.tag||'';
+    document.getElementById('e_link').value = x.link||'';
+    document.getElementById('e_summary').value = x.summary||'';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function saveCurrent(){
+    if(!isAdmin()){ alert('Ky veprim kërkon akses admin.'); return; }
+    const x = {
+      id: currentId || uid(),
+      title: (document.getElementById('e_title').value||'').trim(),
+      date: document.getElementById('e_date').value || today(),
+      tag: document.getElementById('e_tag').value || '',
+      link: (document.getElementById('e_link').value||'').trim(),
+      summary: (document.getElementById('e_summary').value||'').trim(),
+    };
+    if(!x.title){ alert('Vendos titullin.'); return; }
+    if(currentId){
+      const i = data.findIndex(i=>i.id===currentId);
+      if(i>-1) data[i]=x;
+    }else{
+      data.unshift(x);
+    }
+    save(); render(); newBlank();
+  }
+  function removeItem(id){
+    if(!isAdmin()){ alert('Ky veprim kërkon akses admin.'); return; }
+    if(!confirm('Fshi artikullin?')) return;
+    data = data.filter(i=>i.id!==id);
+    save(); render();
+  }
+
+  // ===== Modal reader
+  function readInModal(id){
+    const x = data.find(i=>i.id===id); if(!x) return;
+    document.getElementById('m_title').textContent = x.title;
+    document.getElementById('m_meta').innerHTML = `
+      <span>${x.date||'-'}</span>
+      ${x.tag? `<span class="tag">${escapeHtml(x.tag)}</span>`:''}
+    `;
+    document.getElementById('m_body').textContent = x.summary||'';
+    document.getElementById('modal').style.display='flex';
+  }
+  function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+  // ===== Import / Export
+  function exportJSON(){
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'volton-newsroom.json'; a.click(); URL.revokeObjectURL(a.href);
+  }
+  function importJSON(file){
+    if(!file){ return; }
+    const fr = new FileReader();
+    fr.onload = () => {
+      try{
+        const arr = JSON.parse(fr.result);
+        if(!Array.isArray(arr)) throw new Error('JSON i pasaktë');
+        const map = new Map(data.map(x=>[x.id,x]));
+        for(const x of arr){
+          if(!x.id) x.id = uid();
+          map.set(x.id, x);
+        }
+        data = Array.from(map.values());
+        save(); render();
+        alert('Import i suksesshëm!');
+      }catch(e){ alert('Nuk u importua: '+e.message); }
+    };
+    fr.readAsText(file);
+  }
+  function clearAll(){
+    if(!isAdmin()){ alert('Ky veprim kërkon akses admin.'); return; }
+    if(!confirm('Të fshihen TË GJITHA lajmet nga ky shfletues?')) return;
+    data=[]; save(); render(); if(isAdmin()) newBlank();
+  }
+
+  // ===== Helpers
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+  function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'%22'); }
+
+  // Init UI
+  document.addEventListener('DOMContentLoaded', ()=>{
+    applyAdminUI();
+    if(!Array.isArray(data)) data=[];
+    render();
+    // nëse je admin, përgatit editorin bosh me datën e sotme
+    if(isAdmin()) newBlank();
+  });
+</script>
+</body>
+</html>

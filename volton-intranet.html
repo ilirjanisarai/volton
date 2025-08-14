@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VOLTON · Intranet</title>
+<link rel="icon" href="volton.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+  :root{
+    --brand:#16a34a; --brand-2:#0f7a33;
+    --bg:#0b0c0f; --surface:#ffffff; --muted:#6b7280;
+    --line:#e6e7eb; --sidebar:#f7f7f8; --shadow:0 12px 30px rgba(2,8,23,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --surface:#121416; --sidebar:#0e1012; --line:#1f232a; --muted:#a3aab8; --shadow:0 12px 30px rgba(0,0,0,.35); }
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{ margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#fff 0,#fafafa 60%,#f5f7fb); color:#111827; }
+
+  /* Header */
+  header.appbar{
+    position:sticky; top:0; z-index:50; overflow:hidden;
+    display:flex; align-items:center; gap:16px; padding:16px 18px; color:#fff;
+    background:linear-gradient(120deg, #0b1a12 0%, #12301f 50%, #0e2218 100%);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .brand{display:flex; align-items:center; gap:12px; cursor:pointer; position:relative}
+  .brand img{height:36px}
+  .brand h1{font-size:18px; margin:0; letter-spacing:.2px}
+  .tagline{font-size:12px; opacity:.85}
+  .shine{
+    position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.15) 30%, transparent 60%);
+    transform:translateX(-120%); animation:shine 6s infinite;
+  }
+  @keyframes shine{ 0%{transform:translateX(-120%)} 60%{transform:translateX(120%)} 100%{transform:translateX(120%)} }
+  .spacer{flex:1}
+  .header-pills{display:flex; gap:8px; flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);backdrop-filter:blur(2px);color:#fff;font-weight:700;text-decoration:none}
+  .pill i{color:#8ff0a3}
+  .toggle{display:none}
+
+  /* Layout */
+  .layout{display:grid; grid-template-columns:300px 1fr; min-height:calc(100vh - 72px)}
+  aside.sidebar{
+    position:sticky; top:72px; height:calc(100vh - 72px); overflow:auto;
+    background:var(--sidebar); border-right:1px solid var(--line); padding:16px;
+  }
+  main.content{padding:28px; min-height:calc(100vh - 72px)}
+
+  /* Sidebar */
+  .group{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; margin-bottom:14px}
+  .group summary{
+    list-style:none; cursor:pointer; user-select:none;
+    display:flex; align-items:center; gap:10px; padding:12px 14px; font-weight:800;
+    background:#fff; border:1px solid var(--line); border-radius:12px; position:relative;
+    transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .group summary::-webkit-details-marker{display:none}
+  .group summary:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(2,8,23,.10)}
+  .group summary::after{
+    content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%) rotate(0deg);
+    width:10px; height:10px; border-right:2px solid #9aa1ad; border-bottom:2px solid #9aa1ad; border-radius:1px; transition:transform .25s ease;
+  }
+  .group[open] summary::after{ transform:translateY(-50%) rotate(45deg); }
+  .group summary i{color:var(--brand)}
+
+  .menu{padding:10px; display:grid; gap:8px}
+  .menu button{
+    width:100%; text-align:left; padding:10px 12px; border-radius:12px; border:1px solid var(--line);
+    background:#fff; color:#111827; font-weight:700; cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, background .2s ease, color .2s ease;
+  }
+  .menu button:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+  .menu button.active{background:#111827; color:#fff}
+
+  .refresh-btn{
+    margin-top:8px; width:100%;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px; border-radius:12px; border:1px solid var(--line);
+    background:linear-gradient(180deg,var(--brand),var(--brand-2)); color:#fff; font-weight:800; cursor:pointer;
+    box-shadow:var(--shadow);
+  }
+
+  /* Home */
+  .portal{max-width:1050px; margin:auto}
+  .hero{
+    background:
+      radial-gradient(800px 300px at -10% -30%, rgba(22,163,74,.18), transparent 60%),
+      linear-gradient(135deg, rgba(22,163,74,.08), rgba(22,163,74,0)),
+      var(--surface);
+    border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:var(--shadow);
+  }
+  .hero h2{margin:0 0 6px 0; color:var(--brand)}
+  .quick{margin-top:16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px}
+  .qcard{border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:#fff; box-shadow:var(--shadow); border-left:6px solid var(--brand)}
+  .qcard a{color:var(--brand); font-weight:800; text-decoration:none}
+  .qcard a:hover{text-decoration:underline}
+
+  /* Search */
+  .search-wrap{margin-top:18px; display:grid; gap:8px}
+  .search-bar{display:flex; gap:8px}
+  .search-bar input{flex:1; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-weight:600}
+  .search-bar button{padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; font-weight:800; cursor:pointer}
+  .results{display:grid; gap:10px}
+  .result{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow:var(--shadow)}
+  .hl{background:#dcfce7; padding:0 3px; border-radius:4px}
+
+  /* Updates (now dynamic from Newsroom) */
+  .updates-grid{margin-top:12px; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px}
+  .update-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:var(--shadow)}
+  .tag{display:inline-block; padding:3px 8px; border-radius:999px; font-size:12px; border:1px solid var(--line); margin-right:6px; background:#dcfce7}
+  .update-actions{margin-top:8px; display:flex; gap:8px; flex-wrap:wrap}
+  .update-actions button{border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 8px; cursor:pointer; font-weight:700}
+
+  /* Viewer djathtas */
+  .viewer{position:relative; height:70vh; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; box-shadow:var(--shadow)}
+  .viewer iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+  .loader{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:10px; background:rgba(255,255,255,.7); backdrop-filter:blur(6px); font-weight:800}
+  .dot{width:8px; height:8px; border-radius:999px; background:var(--brand); animation:bounce .9s infinite alternate}
+  .dot:nth-child(2){animation-delay:.15s} .dot:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{to{transform:translateY(-6px); opacity:.7}}
+
+  /* New Lead */
+  .calc{background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:16px}
+  .calc input,.calc select,.calc textarea{border:1px solid var(--line); border-radius:10px; padding:10px; font-weight:600}
+  .calc .btn{margin-top:8px}
+
+  /* Modal viewer for Newsroom items */
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; padding:16px; z-index:100}
+  .modal .panel{background:#fff; max-width:800px; width:100%; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow); padding:16px}
+  .modal .panel h3{margin-top:0}
+  .modal .close{float:right; cursor:pointer; font-weight:800}
+  .news-meta{font-size:12px; color:var(--muted); display:flex; gap:8px; flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="appbar">
+  <div class="brand" onclick="resetToMain()" title="Kthehu në faqen kryesore">
+    <img src="https://volton.al/wp-content/uploads/2024/12/cropped-volton-logo-1-192x192.png" alt="VOLTON" onerror="this.style.display='none'">
+    <div>
+      <h1>VOLTON · Intranet</h1>
+      <div class="tagline">Energjia juaj, menaxhuar me lehtësi</div>
+    </div>
+    <div class="shine"></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="header-pills">
+    <a class="pill" href="https://volton.al" target="_blank"><i class="fa-solid fa-globe"></i> volton.al</a>
+    <a class="pill" href="mailto:info@volton.al"><i class="fa-solid fa-envelope"></i> info@volton.al</a>
+    <a class="pill" href="tel:+355674001007"><i class="fa-solid fa-phone"></i> +355 67 4001 007</a>
+  </div>
+  <button class="toggle" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar(this)"><i class="fa-solid fa-bars"></i> Menu</button>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar" aria-label="Navigimi anësor">
+
+    <details class="group" open>
+      <summary><i class="fa-solid fa-house"></i> Volton</summary>
+      <div class="menu">
+        <button onclick="goHome(this)">Kreu & Quick Links</button>
+        <button onclick="scrollToSection('search')">Kërko</button>
+        <button onclick="scrollToSection('updates')">Updates & Njoftime</button>
+        <button onclick="scrollToSection('new-lead-email')">New Lead (Email)</button>
+        <!-- Newsroom brenda viewer-it -->
+        <button onclick="loadPage(this,'newsroom.html')">Newsroom</button>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><i class="fa-solid fa-calculator"></i> Kalkulatorët</summary>
+      <div class="menu">
+        <button onclick="loadPage(this,'Calculator-Volton.html')">Kalkulatori i kursimeve</button>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><i class="fa-solid fa-book"></i> Baza e njohurive</summary>
+      <div class="menu">
+        <button onclick="loadPage(this,'https://volton.al/licenca-e-furnizimit')">Licenca e Furnizimit</button>
+        <button onclick="loadPage(this,'https://volton.al/licenca-e-tregtimit')">Licenca e Tregtimit</button>
+        <button onclick="loadPage(this,'https://volton.al/privacy-policy')">Politika e Privatësisë</button>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><i class="fa-solid fa-list-check"></i> Procese & Rregullore</summary>
+      <div class="menu">
+        <button onclick="loadPage(this,'docs/procesi-onboarding-MV.pdf')">Onboarding Klient MV</button>
+        <button onclick="loadPage(this,'docs/procesi-onboarding-HV.pdf')">Onboarding Klient HV</button>
+        <button onclick="loadPage(this,'docs/procesi-faturim.pdf')">Procesi i Faturimit</button>
+        <button onclick="loadPage(this,'docs/procesi-ankesa.pdf')">Menaxhimi i Ankesave</button>
+        <button onclick="loadPage(this,'docs/procedura-kontrate.pdf')">Procedura e Kontratës</button>
+        <button onclick="loadPage(this,'docs/rregullore-sigurise.pdf')">Rregullore Sigurie</button>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><i class="fa-solid fa-chart-pie"></i> Raporte</summary>
+      <div class="menu">
+        <button onclick="loadPage(this,'reports/kontrata.html')">Kontrata aktive</button>
+        <button onclick="loadPage(this,'reports/ankesa.html')">Ankesa & SLA</button>
+      </div>
+    </details>
+
+    <button class="refresh-btn" onclick="resetToMain()"><i class="fa-solid fa-rotate"></i> Rifresko & Mbyll Menutë</button>
+  </aside>
+
+  <!-- Content -->
+  <main class="content" id="content">
+    <div class="portal" id="home">
+      <section class="hero" role="region" aria-label="Mirë se vini">
+        <h2>Mirë se vini në VOLTON Intranet</h2>
+        <p class="muted">Qendra e punës për ekipin: lidhje, dokumente, **New Lead (Email)** dhe njoftime. Kalkulatorët janë në një faqe të dedikuar.</p>
+      </section>
+
+      <!-- Quick links -->
+      <section class="quick" aria-label="Lidhje të shpejta">
+        <div class="qcard"><a href="#" onclick="loadPage(null,'https://volton.al/licenca-e-furnizimit')">Licenca e Furnizimit</a></div>
+        <div class="qcard"><a href="#" onclick="loadPage(null,'https://volton.al/licenca-e-tregtimit')">Licenca e Tregtimit</a></div>
+        <div class="qcard"><a href="#" onclick="scrollToSection('new-lead-email')">New Lead (Email)</a></div>
+        <div class="qcard"><a href="#" onclick="loadPage(null,'kalkulator-volton.html')">Kalkulatori i kursimeve</a></div>
+      </section>
+
+      <!-- Search -->
+      <section id="search" class="search-wrap" aria-label="Kërko">
+        <div class="search-bar">
+          <input id="q" type="search" placeholder="Kërko (p.sh. 'licenca', 'kontratë', 'ankesa')">
+          <button onclick="runSearch()">Kërko</button>
+        </div>
+        <div id="search-stats" class="muted"></div>
+        <div id="results" class="results"></div>
+      </section>
+
+      <!-- Updates & Njoftime (nga Newsroom) -->
+      <section id="updates" aria-label="Updates & Njoftime" style="margin-top:18px">
+        <h3 style="margin:0 0 8px 0;">Updates & Njoftime</h3>
+        <div id="updates-wrap" class="updates-grid"></div>
+        <div id="updates-empty" class="muted" style="display:none;margin-top:8px">
+          S’ka lajme akoma. <a href="#" onclick="loadPage(null,'newsroom.html')">Hap Newsroom</a> për të shtuar artikuj.
+        </div>
+      </section>
+
+      <!-- NEW LEAD — EmailJS -->
+      <section id="new-lead-email" style="margin-top:18px">
+        <h3 style="margin:0 0 8px 0;">New Lead (Email)</h3>
+        <form id="leadEmailForm" class="calc" onsubmit="return sendLeadEmail(event)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <input id="le_company" placeholder="Emri kompanisë" required>
+            <input id="le_phone" placeholder="Numër telefoni" type="tel" required>
+            <input id="le_avg" placeholder="Vlera mesatare e faturës (me TVSH) – lekë" type="number" min="0" step="1" required>
+            <select id="le_source" required>
+              <option value="">— Source —</option>
+              <option>Baza Mobile</option>
+              <option>Baza Fix Business</option>
+              <option>Linkedin</option>
+			  <option>Friend</option>
+            </select>
+            <input id="le_contact" placeholder="Kontakt/Email (ops.)" type="email">
+            <input id="le_cc" placeholder="CC (ops.)" type="email">
+          </div>
+          <textarea id="le_notes" placeholder="Shënime (ops.)"
+            style="margin-top:8px;width:100%;height:80px;border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:600"></textarea>
+
+          <!-- Honeypot anti-spam -->
+          <input type="text" id="le_hp" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off">
+
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button type="submit" class="menu button btn">
+              <i class="fa-solid fa-paper-plane"></i> Dërgo me Email
+            </button>
+            <button type="button" class="menu button btn"
+                    onclick="document.getElementById('leadEmailForm').reset()">
+              <i class="fa-solid fa-eraser"></i> Pastro
+            </button>
+          </div>
+          <div id="leadEmailMsg" class="muted" style="margin-top:8px"></div>
+        </form>
+      </section>
+    </div>
+
+    <!-- Viewer (djathas) -->
+    <div id="viewer" class="viewer" hidden>
+      <div class="loader" id="loader" aria-live="polite">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span>Po ngarkohet…</span>
+      </div>
+      <iframe id="frame" title="Përmbajtja" src=""></iframe>
+    </div>
+  </main>
+</div>
+
+<!-- Modal viewer për lajmet (personal viewer) -->
+<div class="modal" id="newsModal">
+  <div class="panel">
+    <span class="close" onclick="closeNewsModal()">✕</span>
+    <h3 id="nm_title">—</h3>
+    <div class="news-meta" id="nm_meta"></div>
+    <div id="nm_body" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+/* ===== Sidebar & UI ===== */
+function toggleSidebar(btn){
+  const s = document.getElementById('sidebar');
+  const open = !s.classList.contains('open');
+  s.classList.toggle('open', open);
+  if(btn) btn.setAttribute('aria-expanded', String(open));
+}
+function closeAllMenus(){ document.querySelectorAll('aside details').forEach(d=>d.open=false); }
+function setActive(btn){
+  document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+/* ===== Viewer / Router ===== */
+function showViewer(){ document.getElementById('home').hidden = true; document.getElementById('viewer').hidden = false; }
+function showHome(){ document.getElementById('viewer').hidden = true; document.getElementById('home').hidden = false; }
+
+function loadPage(btn, url){
+  setActive(btn); showViewer();
+  document.getElementById('sidebar')?.classList.remove('open');
+  const f = document.getElementById('frame'); const l = document.getElementById('loader');
+  l.style.display='flex'; requestAnimationFrame(()=>{ f.src = url; });
+  f.onload = ()=> l.style.display='none';
+  f.onerror = ()=> l.innerHTML = '<span style="font-weight:800;color:#ef4444">Nuk u ngarkua.</span>';
+  pushRoute({view:'page', url});
+}
+function goHome(btn){ setActive(btn); resetToMain(); }
+function scrollToSection(id){
+  setActive(null); showHome();
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+  pushRoute({view:'home', anchor:id});
+}
+
+let _suppressPush = false;
+function pushRoute(state){
+  if(_suppressPush) return;
+  const hash = state.view==='page' ? '#/page/'+encodeURIComponent(state.url) :
+               state.anchor ? '#/home/'+encodeURIComponent(state.anchor) : '#/home';
+  history.pushState(state,'',hash);
+}
+function parseHashToState(){
+  const h = location.hash || '';
+  if(h.startsWith('#/page/')) return {view:'page', url:decodeURIComponent(h.slice(7))};
+  if(h.startsWith('#/home/')) return {view:'home', anchor:decodeURIComponent(h.slice(7))};
+  return {view:'home'};
+}
+function applyState(s){
+  if(!s || s.view==='home'){
+    showHome(); setActive(null); closeAllMenus();
+    if(s && s.anchor){ document.getElementById(s.anchor)?.scrollIntoView(); }
+    const f=document.getElementById('frame'); const l=document.getElementById('loader');
+    if(f) f.src=''; if(l) l.style.display='none';
+    return;
+  }
+  if(s.view==='page' && s.url){
+    showViewer();
+    const f=document.getElementById('frame'); const l=document.getElementById('loader');
+    l.style.display='flex'; requestAnimationFrame(()=>{ f.src=s.url; });
+    f.onload=()=> l.style.display='none';
+  }
+}
+function initRouter(){
+  const s=parseHashToState();
+  history.replaceState(s,'',location.href);
+  applyState(s);
+  window.addEventListener('popstate', (e)=>{
+    _suppressPush=true;
+    applyState(e.state || parseHashToState());
+    _suppressPush=false;
+  });
+}
+function resetToMain(){
+  setActive(null); showHome(); closeAllMenus();
+  window.scrollTo({top:0, behavior:'smooth'});
+  const f=document.getElementById('frame'); const l=document.getElementById('loader');
+  if(f) f.src=''; if(l) l.style.display='none';
+  pushRoute({view:'home'});
+}
+
+/* ===== Search / Static index (opsionale) ===== */
+const PAGES = [
+  {title:'Licenca e Furnizimit', url:'https://volton.al/licenca-e-furnizimit', updated:'2025-06-01'},
+  {title:'Licenca e Tregtimit', url:'https://volton.al/licenca-e-tregtimit', updated:'2025-06-01'},
+  {title:'Politika e Privatësisë', url:'https://volton.al/privacy-policy', updated:'2025-05-20'},
+  {title:'Onboarding MV (PDF)', url:'docs/procesi-onboarding-MV.pdf', updated:'2025-07-10', pdf:true},
+  {title:'Onboarding HV (PDF)', url:'docs/procesi-onboarding-HV.pdf', updated:'2025-07-10', pdf:true},
+  {title:'Procesi i Faturimit', url:'docs/procesi-faturim.pdf', updated:'2025-07-15', pdf:true},
+  {title:'Menaxhimi i Ankesave', url:'docs/procesi-ankesa.pdf', updated:'2025-07-15', pdf:true},
+  {title:'Procedura e Kontratës', url:'docs/procedura-kontrate.pdf', updated:'2025-07-18', pdf:true},
+  {title:'Rregullore Sigurie', url:'docs/rregullore-sigurise.pdf', updated:'2025-07-18', pdf:true},
+  {title:'Kalkulator i kursimeve', url:'kalkulator-volton.html', updated:'2025-08-10'}
+];
+const INDEX = new Map();
+let indexing = false;
+async function buildIndex(){
+  if(indexing || INDEX.size===PAGES.length) return; indexing = true;
+  for(const p of PAGES){
+    try{
+      if(p.pdf){ INDEX.set(p.url,{title:p.title,text:'',updated:p.updated,pdf:true}); continue; }
+      const res = await fetch(p.url,{cache:'no-store'}); const html = await res.text();
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'');
+      const text = (tmp.textContent||'').replace(/\s+/g,' ').trim();
+      INDEX.set(p.url,{title:p.title,text,updated:p.updated,pdf:false});
+    }catch(e){
+      INDEX.set(p.url,{title:p.title,text:'',updated:p.updated,pdf:!!p.pdf});
+    }
+  }
+  indexing=false;
+}
+function highlight(s,q){ const r=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'); return s.replace(r,m=>`<span class="hl">${m}</span>`); }
+function snippet(t,q,len=150){
+  const i=t.toLowerCase().indexOf(q.toLowerCase()); if(i===-1) return (t||'').slice(0,len)+(t.length>len?'…':'');
+  const s=Math.max(0,i-Math.floor(len/2)); const e=Math.min(t.length,s+len); const sl=t.slice(s,e);
+  return (s>0?'…':'')+highlight(sl,q)+(e<t.length?'…':'');
+}
+let searchDebounce;
+document.getElementById('q').addEventListener('input',()=>{ clearTimeout(searchDebounce); searchDebounce=setTimeout(runSearch,200); });
+async function runSearch(){
+  const q=document.getElementById('q').value.trim(); const stats=document.getElementById('search-stats'); const box=document.getElementById('results');
+  if(!q){ stats.textContent=''; box.innerHTML=''; return; }
+  buildIndex();
+  const results=[];
+  for(const p of PAGES){
+    const it = INDEX.get(p.url); if(!it) continue;
+    const hay = (p.title+' '+it.text).toLowerCase();
+    if(hay.includes(q.toLowerCase())){
+      results.push({title:p.title,url:p.url,updated:p.updated,snippet: it.text? snippet(it.text,q):'(PDF)', pdf:!!p.pdf});
+    }
+  }
+  results.sort((a,b)=> b.updated.replace(/-/g,'').localeCompare(a.updated.replace(/-/g,'')));
+  stats.textContent = `${results.length} rezultat(e)`;
+  box.innerHTML = results.map(r=>`
+    <div class="result">
+      <h4>${r.title} ${r.pdf?'<span class="tag">PDF</span>':''}</h4>
+      <div class="muted" style="font-size:12px">Përditësuar: ${r.updated||'-'}</div>
+      <div style="margin-top:6px;color:#374151">${r.snippet}</div>
+      <div style="margin-top:10px"><button class="menu button btn" onclick="loadPage(null,'${r.url}')">Hap</button></div>
+    </div>`).join('');
+}
+
+/* ===== Updates & Njoftime nga Newsroom (LocalStorage) ===== */
+const NEWS_LS_KEY = 'VOLTON_NEWSROOM_V1'; // i njëjti si në newsroom.html
+
+function getNews(){
+  try{ const arr = JSON.parse(localStorage.getItem(NEWS_LS_KEY)||'[]'); return Array.isArray(arr)? arr:[]; }
+  catch{ return []; }
+}
+
+// Rendero max N artikuj (p.sh. 8) – mund të filtrosh sipas tag nëse do
+function renderHomeNews(limit=8){
+  const list = getNews().slice().sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  const wrap = document.getElementById('updates-wrap');
+  const empty = document.getElementById('updates-empty');
+
+  if(!list.length){
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const items = list.slice(0, limit);
+  wrap.innerHTML = items.map(x=>`
+    <div class="update-card">
+      <div class="muted" style="font-size:12px">${x.date || '-'}</div>
+      ${x.tag ? `<div style="margin:6px 0"><span class="tag">${escapeHtml(x.tag)}</span></div>` : '<div style="height:10px"></div>'}
+      <div style="font-weight:800">${escapeHtml(x.title||'—')}</div>
+      <div style="margin-top:6px;color:#374151">${escapeHtml((x.summary||'').slice(0,180))}${(x.summary&&x.summary.length>180)?'…':''}</div>
+      <div class="update-actions">
+        <button onclick="openNewsModal('${x.id||''}')"><i class="fa-regular fa-eye"></i> Lexo</button>
+        ${x.link ? `<a class="pill" style="text-decoration:none" href="${escapeAttr(x.link)}" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Hap link</a>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ===== Modal Viewer për lajmet ===== */
+function openNewsModal(id){
+  const arr = getNews();
+  const x = arr.find(i=>i.id===id);
+  if(!x){ alert('Artikulli nuk u gjet.'); return; }
+  document.getElementById('nm_title').textContent = x.title || '—';
+  document.getElementById('nm_meta').innerHTML = `
+    <span>${x.date || '-'}</span>
+    ${x.tag ? `<span class="tag">${escapeHtml(x.tag)}</span>` : ''}
+  `;
+  // Rendero përmbledhjen (text). Nëse dëshiron HTML të pasur, mund të përdorësh një sanitizer para se të vendosësh innerHTML.
+  document.getElementById('nm_body').textContent = x.summary || '';
+  document.getElementById('newsModal').style.display = 'flex';
+}
+function closeNewsModal(){ document.getElementById('newsModal').style.display='none'; }
+
+/* ===== EmailJS — dërgim i lead-ve me email ===== */
+const EMAILJS_PUBLIC_KEY = 'VENDOS_PUBLIC_KEY_KETU';
+const EMAILJS_SERVICE_ID = 'VENDOS_SERVICE_ID_KETU';
+const EMAILJS_TEMPLATE_ID = 'VENDOS_TEMPLATE_ID_KETU';
+const LEADS_TO_EMAIL = 'bond77.shpk@gmail.com'; // marrësi kryesor
+
+(function(){ try{ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); }catch(e){} })();
+
+async function sendLeadEmail(e){
+  e.preventDefault();
+  const msg = document.getElementById('leadEmailMsg');
+  const hp = document.getElementById('le_hp').value; // honeypot
+  if(hp){ return false; } // ndal robotët
+
+  const v = {
+    company: document.getElementById('le_company').value.trim(),
+    phone: document.getElementById('le_phone').value.trim(),
+    avg_bill: document.getElementById('le_avg').value.trim(),
+    source: document.getElementById('le_source').value.trim(),
+    contact: document.getElementById('le_contact').value.trim(),
+    cc: document.getElementById('le_cc').value.trim(),
+    notes: document.getElementById('le_notes').value.trim(),
+    to_email: LEADS_TO_EMAIL
+  };
+
+  if(!v.company || !v.phone || !v.avg_bill || !v.source){
+    msg.textContent = 'Plotëso Emrin, Nr telefoni, Vlerën e faturës dhe Source.';
+    msg.style.color = '#b91c1c';
+    return false;
+  }
+
+  msg.textContent = 'Duke dërguar…';
+  msg.style.color = '#6b7280';
+
+  try{
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, v);
+    msg.textContent = 'U dërgua me sukses!';
+    msg.style.color = '#0f7a33';
+    document.getElementById('leadEmailForm').reset();
+  }catch(err){
+    console.error(err);
+    msg.textContent = 'Dështoi dërgimi. Verifiko Public Key / Service / Template ID.';
+    msg.style.color = '#b91c1c';
+  }
+  return false;
+}
+
+/* ===== Helpers ===== */
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'%22'); }
+
+/* ===== Init ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  initRouter();
+  buildIndex();
+  renderHomeNews(); // <-- lexon lajmet nga Newsroom (LocalStorage) dhe mbush Updates
+});
+</script>
+</body>
+</html>

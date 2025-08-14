@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lead Form</title>
+</head>
+<body>
+    <h2>Formular për Dërgim Lead</h2>
+    <form action="submit_lead.php" method="POST">
+        <label>Emri i Kompanisë:</label><br>
+        <input type="text" name="company_name" required><br><br>
+
+        <label>NIPT:</label><br>
+        <input type="text" name="nipt" required><br><br>
+
+        <label>Numër Kontakti:</label><br>
+        <input type="text" name="contact_number" required><br><br>
+
+        <label>Fatura Mesatare Mujore:</label><br>
+        <input type="text" name="monthly_invoice" required><br><br>
+
+        <label>Linja e Tensionit:</label><br>
+        <input type="text" name="voltage_line" required><br><br>
+
+        <label>Source:</label><br>
+        <select name="source" required>
+            <option value="QKB">QKB</option>
+            <option value="Baza Mobile">Baza Mobile</option>
+            <option value="Linkedin">Linkedin</option>
+            <option value="Friend">Friend</option>
+        </select><br><br>
+
+        <label>Komente:</label><br>
+        <textarea name="comments" rows="4" cols="50"></textarea><br><br>
+
+        <button type="submit">Dergo Lead</button>
+    </form>
+</body>
+</html>

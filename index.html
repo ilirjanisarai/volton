@@ -6,157 +6,196 @@
 <title>VOLTON · Intranet</title>
 <link rel="icon" href="volton.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
   :root{
-    --brand:#16a34a; --brand-2:#0f7a33;
-    --bg:#0b0c0f; --surface:#ffffff; --muted:#6b7280;
-    --line:#e6e7eb; --sidebar:#f7f7f8; --shadow:0 12px 30px rgba(2,8,23,.10);
+    --brand:#16a34a; --brand-2:#0f7a33; --accent:#22c55e;
+    --text:#0b1220; --muted:#6b7280;
+    --line:#e6e7eb; --line-2:#dfe3ea;
+    --surface:#ffffff; --surface-2:#f9fafb;
+    --bg:linear-gradient(160deg,#f7fbff 0%,#eef7f0 40%,#f8fafc 100%);
+    --shadow-lg:0 24px 60px rgba(2,8,23,.12);
+    --shadow:0 14px 36px rgba(2,8,23,.08);
+    --blur:10px;
+    --radius:16px;
+    --pill:999px;
+    --speed:.18s;
   }
   @media (prefers-color-scheme: dark){
-    :root{ --surface:#121416; --sidebar:#0e1012; --line:#1f232a; --muted:#a3aab8; --shadow:0 12px 30px rgba(0,0,0,.35); }
+    :root{
+      --text:#ecf0f6; --muted:#a7b1c2;
+      --surface:#121416; --surface-2:#0d0f11;
+      --line:#1c2128; --line-2:#232933;
+      --bg:radial-gradient(1200px 600px at -10% -10%, rgba(34,197,94,.14), transparent 60%), linear-gradient(160deg,#0b0c0f 0%,#0f1510 40%,#0c0f13 100%);
+      --shadow-lg:0 28px 60px rgba(0,0,0,.45);
+      --shadow:0 18px 38px rgba(0,0,0,.35);
+      --blur:8px;
+    }
   }
-  *{box-sizing:border-box} html,body{height:100%}
-  body{ margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#fff 0,#fafafa 60%,#f5f7fb); color:#111827; }
 
-  /* Header */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    color:var(--text); background:var(--bg);
+  }
+
+  /* Header – glass hero */
   header.appbar{
-    position:sticky; top:0; z-index:50; overflow:hidden;
-    display:flex; align-items:center; gap:16px; padding:16px 18px; color:#fff;
-    background:linear-gradient(120deg, #0b1a12 0%, #12301f 50%, #0e2218 100%);
-    border-bottom:1px solid rgba(255,255,255,.06);
+    position:sticky; top:0; z-index:60;
+    backdrop-filter:saturate(1.1) blur(var(--blur));
+    background:linear-gradient(120deg,rgba(11,26,18,.65),rgba(16,38,26,.65));
+    color:#fff; border-bottom:1px solid rgba(255,255,255,.08);
   }
-  .brand{display:flex; align-items:center; gap:12px; cursor:pointer; position:relative}
-  .brand img{height:36px}
-  .brand h1{font-size:18px; margin:0; letter-spacing:.2px}
-  .tagline{font-size:12px; opacity:.85}
-  .shine{
-    position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.15) 30%, transparent 60%);
-    transform:translateX(-120%); animation:shine 6s infinite;
+  .appbar-inner{
+    display:flex; align-items:center; gap:16px; padding:14px 18px; max-width:1400px; margin:0 auto;
   }
-  @keyframes shine{ 0%{transform:translateX(-120%)} 60%{transform:translateX(120%)} 100%{transform:translateX(120%)} }
+  .brand{display:flex; align-items:center; gap:14px; cursor:pointer; position:relative}
+  .brand img{height:38px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+  .brand-title h1{font-size:18px; margin:0; letter-spacing:.2px; font-weight:800}
+  .brand-title .tagline{font-size:12px; opacity:.9}
+  .shine{position:absolute; inset:-8px; pointer-events:none; border-radius:14px;
+         background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.18) 40%,transparent 70%);
+         transform:translateX(-120%); animation:shine 7s ease-in-out infinite;}
+  @keyframes shine{0%{transform:translateX(-120%)} 60%,100%{transform:translateX(120%)}}
   .spacer{flex:1}
-  .header-pills{display:flex; gap:8px; flex-wrap:wrap}
-  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);backdrop-filter:blur(2px);color:#fff;font-weight:700;text-decoration:none}
-  .pill i{color:#8ff0a3}
+  .header-pills{display:flex; gap:10px; flex-wrap:wrap}
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:var(--pill);
+    border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08); color:#fff;
+    font-weight:800; text-decoration:none; transform:translateY(0); transition:transform var(--speed), filter var(--speed);
+  }
+  .pill i{color:#9af0af}
+  .pill:hover{transform:translateY(-2px); filter:brightness(1.08)}
   .toggle{display:none}
 
-  /* Layout */
-  .layout{display:grid; grid-template-columns:300px 1fr; min-height:calc(100vh - 72px)}
+  /* Layout shell */
+  .layout{display:grid; grid-template-columns:320px 1fr; min-height:calc(100vh - 76px); max-width:1400px; margin:0 auto; width:100%}
   aside.sidebar{
-    position:sticky; top:72px; height:calc(100vh - 72px); overflow:auto;
-    background:var(--sidebar); border-right:1px solid var(--line); padding:16px;
+    position:sticky; top:76px; height:calc(100vh - 76px); overflow:auto;
+    padding:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.3));
+    backdrop-filter:blur(var(--blur)); border-right:1px solid var(--line);
   }
-  main.content{padding:28px; min-height:calc(100vh - 72px)}
+  main.content{padding:28px; min-height:calc(100vh - 76px)}
 
-  /* Sidebar */
+  /* Sidebar groups – minimal cards */
   .group{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; margin-bottom:14px}
   .group summary{
-    list-style:none; cursor:pointer; user-select:none;
-    display:flex; align-items:center; gap:10px; padding:12px 14px; font-weight:800;
-    background:#fff; border:1px solid var(--line); border-radius:12px; position:relative;
-    transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+    list-style:none; cursor:pointer; user-select:none; position:relative;
+    display:flex; align-items:center; gap:12px; padding:12px 14px; font-weight:800;
+    border-bottom:1px solid var(--line-2); background:linear-gradient(180deg,rgba(0,0,0,.02),transparent);
+    transition:filter var(--speed), transform var(--speed);
   }
   .group summary::-webkit-details-marker{display:none}
-  .group summary:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(2,8,23,.10)}
+  .group summary:hover{filter:brightness(1.03)}
+  .group summary i{color:var(--brand)}
   .group summary::after{
-    content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%) rotate(0deg);
-    width:10px; height:10px; border-right:2px solid #9aa1ad; border-bottom:2px solid #9aa1ad; border-radius:1px; transition:transform .25s ease;
+    content:""; position:absolute; right:14px; top:50%; width:10px; height:10px;
+    border-right:2px solid #aeb5c2; border-bottom:2px solid #aeb5c2; transform:translateY(-50%) rotate(0deg); transition:transform .25s;
   }
   .group[open] summary::after{ transform:translateY(-50%) rotate(45deg); }
-  .group summary i{color:var(--brand)}
-
-  .menu{padding:10px; display:grid; gap:8px}
+  .menu{padding:12px; display:grid; gap:10px}
   .menu button{
-    width:100%; text-align:left; padding:10px 12px; border-radius:12px; border:1px solid var(--line);
-    background:#fff; color:#111827; font-weight:700; cursor:pointer;
-    transition:transform .12s ease, box-shadow .12s ease, background .2s ease, color .2s ease;
+    width:100%; text-align:left; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--text); font-weight:800; cursor:pointer;
+    transition:transform var(--speed), box-shadow var(--speed), background var(--speed), color var(--speed);
   }
-  .menu button:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
-  .menu button.active{background:#111827; color:#fff}
-
+  .menu button:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+  .menu button.active{background:#0f172a; color:#fff}
   .refresh-btn{
-    margin-top:8px; width:100%;
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:10px; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px;
     padding:12px; border-radius:12px; border:1px solid var(--line);
-    background:linear-gradient(180deg,var(--brand),var(--brand-2)); color:#fff; font-weight:800; cursor:pointer;
-    box-shadow:var(--shadow);
+    background:linear-gradient(180deg,var(--brand),var(--brand-2)); color:#fff; font-weight:800; cursor:pointer; box-shadow:var(--shadow-lg);
+    transition:transform var(--speed), filter var(--speed);
   }
+  .refresh-btn:hover{transform:translateY(-2px); filter:brightness(1.05)}
 
-  /* Home */
-  .portal{max-width:1050px; margin:auto}
+  /* Home hero & cards */
+  .portal{max-width:1100px; margin:auto}
   .hero{
     background:
-      radial-gradient(800px 300px at -10% -30%, rgba(22,163,74,.18), transparent 60%),
-      linear-gradient(135deg, rgba(22,163,74,.08), rgba(22,163,74,0)),
+      radial-gradient(900px 360px at -10% -30%, rgba(34,197,94,.22), transparent 60%),
+      linear-gradient(135deg, rgba(34,197,94,.12), rgba(34,197,94,0)),
       var(--surface);
-    border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:var(--shadow);
+    border:1px solid var(--line); border-radius:18px; padding:26px; box-shadow:var(--shadow-lg)
   }
-  .hero h2{margin:0 0 6px 0; color:var(--brand)}
-  .quick{margin-top:16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px}
-  .qcard{border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:#fff; box-shadow:var(--shadow); border-left:6px solid var(--brand)}
+  .hero h2{margin:0 0 6px 0; color:var(--brand); font-weight:800}
+  .hero p{margin:0; color:var(--muted)}
+  .quick{margin-top:16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px}
+  .qcard{border:1px solid var(--line); border-radius:16px; padding:16px; background:var(--surface); box-shadow:var(--shadow); border-left:6px solid var(--brand)}
   .qcard a{color:var(--brand); font-weight:800; text-decoration:none}
   .qcard a:hover{text-decoration:underline}
 
   /* Search */
-  .search-wrap{margin-top:18px; display:grid; gap:8px}
-  .search-bar{display:flex; gap:8px}
-  .search-bar input{flex:1; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-weight:600}
-  .search-bar button{padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; font-weight:800; cursor:pointer}
-  .results{display:grid; gap:10px}
-  .result{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow:var(--shadow)}
+  .search-wrap{margin-top:18px; display:grid; gap:10px}
+  .search-bar{display:flex; gap:10px}
+  .search-bar input{flex:1; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-weight:700; background:var(--surface)}
+  .search-bar button{padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--surface); font-weight:800; cursor:pointer}
+  .results{display:grid; gap:12px}
+  .result{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:var(--shadow)}
   .hl{background:#dcfce7; padding:0 3px; border-radius:4px}
 
-  /* Updates (now dynamic from Newsroom) */
+  /* Updates & modal */
   .updates-grid{margin-top:12px; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px}
-  .update-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:var(--shadow)}
+  .update-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:var(--shadow)}
   .tag{display:inline-block; padding:3px 8px; border-radius:999px; font-size:12px; border:1px solid var(--line); margin-right:6px; background:#dcfce7}
-  .update-actions{margin-top:8px; display:flex; gap:8px; flex-wrap:wrap}
-  .update-actions button{border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 8px; cursor:pointer; font-weight:700}
+  .update-actions{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+  .update-actions button{border:1px solid var(--line); background:var(--surface-2); border-radius:10px; padding:8px 10px; cursor:pointer; font-weight:800}
 
   /* Viewer djathtas */
-  .viewer{position:relative; height:85vh; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; box-shadow:var(--shadow)}
+  .viewer{position:relative; height:72vh; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:var(--surface); box-shadow:var(--shadow-lg)}
   .viewer iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
   .loader{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:10px; background:rgba(255,255,255,.7); backdrop-filter:blur(6px); font-weight:800}
   .dot{width:8px; height:8px; border-radius:999px; background:var(--brand); animation:bounce .9s infinite alternate}
   .dot:nth-child(2){animation-delay:.15s} .dot:nth-child(3){animation-delay:.3s}
   @keyframes bounce{to{transform:translateY(-6px); opacity:.7}}
 
-  /* New Lead */
-  .calc{background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:16px}
-  .calc input,.calc select,.calc textarea{border:1px solid var(--line); border-radius:10px; padding:10px; font-weight:600}
+  /* New Lead form */
+  .calc{background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:16px}
+  .calc input,.calc select,.calc textarea{border:1px solid var(--line); border-radius:12px; padding:12px; font-weight:700; background:var(--surface-2)}
   .calc .btn{margin-top:8px}
 
-  /* Modal viewer for Newsroom items */
-  .modal{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; padding:16px; z-index:100}
-  .modal .panel{background:#fff; max-width:800px; width:100%; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow); padding:16px}
+  /* Modal (News viewer) */
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:18px; z-index:100}
+  .modal .panel{background:var(--surface); max-width:860px; width:100%; border-radius:18px; border:1px solid var(--line); box-shadow:var(--shadow-lg); padding:18px}
   .modal .panel h3{margin-top:0}
   .modal .close{float:right; cursor:pointer; font-weight:800}
   .news-meta{font-size:12px; color:var(--muted); display:flex; gap:8px; flex-wrap:wrap}
+  /* Mobile */
+  .toggle{display:none}
+  @media (max-width: 1140px){
+    .layout{grid-template-columns:1fr}
+    aside.sidebar{position:fixed; top:76px; left:0; right:0; height:auto; max-height:70vh; transform:translateY(-120%); transition:transform .22s ease}
+    aside.sidebar.open{transform:translateY(0%)}
+    .toggle{display:inline-flex; margin-left:8px; align-items:center; gap:8px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:#fff; padding:8px 12px; border-radius:12px; font-weight:800; cursor:pointer}
+    main.content{padding:20px}
+  }
 </style>
 </head>
 <body>
 
 <!-- Header -->
 <header class="appbar">
-  <div class="brand" onclick="resetToMain()" title="Kthehu në faqen kryesore">
-    <img src="https://volton.al/wp-content/uploads/2024/12/cropped-volton-logo-1-192x192.png" alt="VOLTON" onerror="this.style.display='none'">
-    <div>
-      <h1>VOLTON · Intranet</h1>
-      <div class="tagline">Energjia juaj, menaxhuar me lehtësi</div>
+  <div class="appbar-inner">
+    <div class="brand" onclick="resetToMain()" title="Kthehu në faqen kryesore">
+      <img src="https://volton.al/wp-content/uploads/2024/12/cropped-volton-logo-1-192x192.png" alt="VOLTON" onerror="this.style.display='none'">
+      <div class="brand-title">
+        <h1>VOLTON · Intranet</h1>
+        <div class="tagline">Energjia juaj, menaxhuar me lehtësi</div>
+      </div>
+      <div class="shine"></div>
     </div>
-    <div class="shine"></div>
+    <div class="spacer"></div>
+    <div class="header-pills">
+      <a class="pill" href="https://volton.al" target="_blank"><i class="fa-solid fa-globe"></i> volton.al</a>
+      <a class="pill" href="mailto:info@volton.al"><i class="fa-solid fa-envelope"></i> info@volton.al</a>
+      <a class="pill" href="tel:+355674001007"><i class="fa-solid fa-phone"></i> +355 67 4001 007</a>
+    </div>
+    <button class="toggle" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar(this)"><i class="fa-solid fa-bars"></i> Menu</button>
   </div>
-  <div class="spacer"></div>
-  <div class="header-pills">
-    <a class="pill" href="https://volton.al" target="_blank"><i class="fa-solid fa-globe"></i> volton.al</a>
-    <a class="pill" href="mailto:info@volton.al"><i class="fa-solid fa-envelope"></i> info@volton.al</a>
-    <a class="pill" href="tel:+355674001007"><i class="fa-solid fa-phone"></i> +355 67 4001 007</a>
-  </div>
-  <button class="toggle" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar(this)"><i class="fa-solid fa-bars"></i> Menu</button>
 </header>
 
 <div class="layout">
@@ -170,7 +209,6 @@
         <button onclick="scrollToSection('search')">Kërko</button>
         <button onclick="scrollToSection('updates')">Updates & Njoftime</button>
         <button onclick="scrollToSection('new-lead-email')">New Lead (Email)</button>
-        <!-- Newsroom brenda viewer-it -->
         <button onclick="loadPage(this,'Newsroom.html')">Newsroom</button>
       </div>
     </details>
@@ -260,25 +298,21 @@
             <select id="le_source" required>
               <option value="">— Source —</option>
               <option>Baza Mobile</option>
-              <option>Baza Fix Business</option>
-              <option>Linkedin</option>
-			  <option>Friend</option>
+              <option>QKB</option>
+              <option>Fix Rezidencial</option>
             </select>
             <input id="le_contact" placeholder="Kontakt/Email (ops.)" type="email">
             <input id="le_cc" placeholder="CC (ops.)" type="email">
           </div>
           <textarea id="le_notes" placeholder="Shënime (ops.)"
-            style="margin-top:8px;width:100%;height:80px;border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:600"></textarea>
+            style="margin-top:10px;width:100%;height:90px"></textarea>
 
           <!-- Honeypot anti-spam -->
           <input type="text" id="le_hp" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off">
 
-          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-            <button type="submit" class="menu button btn">
-              <i class="fa-solid fa-paper-plane"></i> Dërgo me Email
-            </button>
-            <button type="button" class="menu button btn"
-                    onclick="document.getElementById('leadEmailForm').reset()">
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button type="submit" class="menu button btn"><i class="fa-solid fa-paper-plane"></i> Dërgo me Email</button>
+            <button type="button" class="menu button btn" onclick="document.getElementById('leadEmailForm').reset()">
               <i class="fa-solid fa-eraser"></i> Pastro
             </button>
           </div>
@@ -298,13 +332,13 @@
   </main>
 </div>
 
-<!-- Modal viewer për lajmet (personal viewer) -->
+<!-- Modal viewer për lajmet -->
 <div class="modal" id="newsModal">
   <div class="panel">
     <span class="close" onclick="closeNewsModal()">✕</span>
     <h3 id="nm_title">—</h3>
     <div class="news-meta" id="nm_meta"></div>
-    <div id="nm_body" style="margin-top:8px"></div>
+    <div id="nm_body" style="margin-top:10px"></div>
   </div>
 </div>
 
@@ -390,7 +424,7 @@ function resetToMain(){
   pushRoute({view:'home'});
 }
 
-/* ===== Search / Static index (opsionale) ===== */
+/* ===== Search / Static index ===== */
 const PAGES = [
   {title:'Licenca e Furnizimit', url:'https://volton.al/licenca-e-furnizimit', updated:'2025-06-01'},
   {title:'Licenca e Tregtimit', url:'https://volton.al/licenca-e-tregtimit', updated:'2025-06-01'},
@@ -453,52 +487,40 @@ async function runSearch(){
 }
 
 /* ===== Updates & Njoftime nga Newsroom (LocalStorage) ===== */
-const NEWS_LS_KEY = 'VOLTON_NEWSROOM_V1'; // i njëjti si në newsroom.html
-
+const NEWS_LS_KEY = 'VOLTON_NEWSROOM_V1';
 function getNews(){
   try{ const arr = JSON.parse(localStorage.getItem(NEWS_LS_KEY)||'[]'); return Array.isArray(arr)? arr:[]; }
   catch{ return []; }
 }
-
-// Rendero max N artikuj (p.sh. 8) – mund të filtrosh sipas tag nëse do
 function renderHomeNews(limit=8){
   const list = getNews().slice().sort((a,b)=> (b.date||'').localeCompare(a.date||''));
   const wrap = document.getElementById('updates-wrap');
   const empty = document.getElementById('updates-empty');
-
-  if(!list.length){
-    wrap.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-
+  if(!list.length){ wrap.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
   const items = list.slice(0, limit);
   wrap.innerHTML = items.map(x=>`
     <div class="update-card">
       <div class="muted" style="font-size:12px">${x.date || '-'}</div>
       ${x.tag ? `<div style="margin:6px 0"><span class="tag">${escapeHtml(x.tag)}</span></div>` : '<div style="height:10px"></div>'}
       <div style="font-weight:800">${escapeHtml(x.title||'—')}</div>
-      <div style="margin-top:6px;color:#374151">${escapeHtml((x.summary||'').slice(0,180))}${(x.summary&&x.summary.length>180)?'…':''}</div>
+      <div style="margin-top:6px;color:#374151">${escapeHtml((x.summary||'').slice(0,200))}${(x.summary&&x.summary.length>200)?'…':''}</div>
       <div class="update-actions">
         <button onclick="openNewsModal('${x.id||''}')"><i class="fa-regular fa-eye"></i> Lexo</button>
         ${x.link ? `<a class="pill" style="text-decoration:none" href="${escapeAttr(x.link)}" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Hap link</a>` : ''}
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 /* ===== Modal Viewer për lajmet ===== */
 function openNewsModal(id){
-  const arr = getNews();
-  const x = arr.find(i=>i.id===id);
+  const arr = getNews(); const x = arr.find(i=>i.id===id);
   if(!x){ alert('Artikulli nuk u gjet.'); return; }
   document.getElementById('nm_title').textContent = x.title || '—';
   document.getElementById('nm_meta').innerHTML = `
     <span>${x.date || '-'}</span>
     ${x.tag ? `<span class="tag">${escapeHtml(x.tag)}</span>` : ''}
   `;
-  // Rendero përmbledhjen (text). Nëse dëshiron HTML të pasur, mund të përdorësh një sanitizer para se të vendosësh innerHTML.
   document.getElementById('nm_body').textContent = x.summary || '';
   document.getElementById('newsModal').style.display = 'flex';
 }
@@ -508,15 +530,14 @@ function closeNewsModal(){ document.getElementById('newsModal').style.display='n
 const EMAILJS_PUBLIC_KEY = 'VENDOS_PUBLIC_KEY_KETU';
 const EMAILJS_SERVICE_ID = 'VENDOS_SERVICE_ID_KETU';
 const EMAILJS_TEMPLATE_ID = 'VENDOS_TEMPLATE_ID_KETU';
-const LEADS_TO_EMAIL = 'bond77.shpk@gmail.com'; // marrësi kryesor
-
+const LEADS_TO_EMAIL = 'bond77.shpk@gmail.com';
 (function(){ try{ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); }catch(e){} })();
 
 async function sendLeadEmail(e){
   e.preventDefault();
   const msg = document.getElementById('leadEmailMsg');
-  const hp = document.getElementById('le_hp').value; // honeypot
-  if(hp){ return false; } // ndal robotët
+  const hp = document.getElementById('le_hp').value;
+  if(hp){ return false; }
 
   const v = {
     company: document.getElementById('le_company').value.trim(),
@@ -528,25 +549,17 @@ async function sendLeadEmail(e){
     notes: document.getElementById('le_notes').value.trim(),
     to_email: LEADS_TO_EMAIL
   };
-
   if(!v.company || !v.phone || !v.avg_bill || !v.source){
-    msg.textContent = 'Plotëso Emrin, Nr telefoni, Vlerën e faturës dhe Source.';
-    msg.style.color = '#b91c1c';
-    return false;
+    msg.textContent = 'Plotëso Emrin, Nr telefoni, Vlerën e faturës dhe Source.'; msg.style.color = '#b91c1c'; return false;
   }
-
-  msg.textContent = 'Duke dërguar…';
-  msg.style.color = '#6b7280';
-
+  msg.textContent = 'Duke dërguar…'; msg.style.color = '#6b7280';
   try{
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, v);
-    msg.textContent = 'U dërgua me sukses!';
-    msg.style.color = '#0f7a33';
+    msg.textContent = 'U dërgua me sukses!'; msg.style.color = '#0f7a33';
     document.getElementById('leadEmailForm').reset();
   }catch(err){
     console.error(err);
-    msg.textContent = 'Dështoi dërgimi. Verifiko Public Key / Service / Template ID.';
-    msg.style.color = '#b91c1c';
+    msg.textContent = 'Dështoi dërgimi. Verifiko Public Key / Service / Template ID.'; msg.style.color = '#b91c1c';
   }
   return false;
 }
@@ -559,10 +572,8 @@ function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'%22'); }
 document.addEventListener('DOMContentLoaded', ()=>{
   initRouter();
   buildIndex();
-  renderHomeNews(); // <-- lexon lajmet nga Newsroom (LocalStorage) dhe mbush Updates
+  renderHomeNews(); // furnizon Updates nga LocalStorage i Newsroom
 });
 </script>
 </body>
 </html>
-
-

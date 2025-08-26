@@ -286,7 +286,7 @@
     <div class="portal" id="home">
       <section class="hero" role="region" aria-label="Mirë se vini">
         <h2>Mirë se vini në VOLTON Intranet</h2>
-        <p class="muted">Qendra e punës për ekipin: lidhje, dokumente, **New Lead (Email)** dhe njoftime. Kalkulatorët janë në një faqe të dedikuar.</p>
+        <p class="muted">Qendra e punës për ekipin: lidhje, dokumente, <strong>New Lead (Email)</strong> dhe njoftime. Kalkulatorët janë në një faqe të dedikuar.</p>
       </section>
 
       <!-- Quick links -->
@@ -316,7 +316,7 @@
         </div>
       </section>
 
-      <!-- NEW LEAD — EmailJS -->
+      <!-- NEW LEAD — Formspree -->
       <section id="new-lead-email" style="margin-top:18px">
         <h3 style="margin:0 0 8px 0;">New Lead (Email)</h3>
         <form id="leadEmailForm" class="calc" onsubmit="return sendLeadEmail(event)">
@@ -371,8 +371,9 @@
   </div>
 </div>
 
-<!-- EmailJS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- ⚠️ Hequr EmailJS SDK (s'nevojitet më) -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script> -->
+
 <script>
 /* ===== Sidebar & UI ===== */
 function toggleSidebar(btn){
@@ -555,19 +556,16 @@ function openNewsModal(id){
 }
 function closeNewsModal(){ document.getElementById('newsModal').style.display='none'; }
 
-/* ===== EmailJS — dërgim i lead-ve me email ===== */
-const EMAILJS_PUBLIC_KEY = 'VENDOS_PUBLIC_KEY_KETU';
-const EMAILJS_SERVICE_ID = 'VENDOS_SERVICE_ID_KETU';
-const EMAILJS_TEMPLATE_ID = 'VENDOS_TEMPLATE_ID_KETU';
-const LEADS_TO_EMAIL      = 'bond77.shpk@gmail.com';
-(function(){ try{ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); }catch(e){} })();
+/* ===== Formspree — dërgim i lead-ve me email ===== */
+const FORMSPREE_ACTION = 'https://formspree.io/f/mrbagara';
 
 async function sendLeadEmail(e){
   e.preventDefault();
   const msg = document.getElementById('leadEmailMsg');
   const hp  = document.getElementById('le_hp').value;
-  if(hp){ return false; }
+  if(hp){ return false; } // honeypot
 
+  // Mbledh vlerat
   const v = {
     company:  document.getElementById('le_company').value.trim(),
     phone:    document.getElementById('le_phone').value.trim(),
@@ -575,20 +573,55 @@ async function sendLeadEmail(e){
     source:   document.getElementById('le_source').value.trim(),
     contact:  document.getElementById('le_contact').value.trim(),
     cc:       document.getElementById('le_cc').value.trim(),
-    notes:    document.getElementById('le_notes').value.trim(),
-    to_email: LEADS_TO_EMAIL
+    notes:    document.getElementById('le_notes').value.trim()
   };
+
+  // Validim i thjeshtë
   if(!v.company || !v.phone || !v.avg_bill || !v.source){
-    msg.textContent = 'Plotëso Emrin, Nr telefoni, Vlerën e faturës dhe Source.'; msg.style.color = '#b91c1c'; return false;
+    msg.textContent = 'Plotëso Emrin e kompanisë, Nr telefoni, Vlerën e faturës dhe Source.';
+    msg.style.color = '#b91c1c';
+    return false;
   }
-  msg.textContent = 'Duke dërguar…'; msg.style.color = '#6b7280';
+
+  // Përgatit payload
+  const data = new FormData();
+  data.append('company',  v.company);
+  data.append('phone',    v.phone);
+  data.append('avg_bill', v.avg_bill);
+  data.append('source',   v.source);
+  data.append('contact',  v.contact);
+  data.append('cc',       v.cc);
+  data.append('notes',    v.notes);
+
+  // Header/opsione shtesë Formspree
+  data.append('_subject', 'New Lead (Volton Portal) - ' + v.company);
+  if(v.contact){ data.append('_replyto', v.contact); } // që “Reply” të shkojë te kontakti
+
+  msg.textContent = 'Duke dërguar…';
+  msg.style.color = '#6b7280';
+
   try{
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, v);
-    msg.textContent = 'U dërgua me sukses!'; msg.style.color = '#0f7a33';
-    document.getElementById('leadEmailForm').reset();
-  }catch(err){
-    console.error(err);
-    msg.textContent = 'Dështoi dërgimi. Verifiko Public Key / Service / Template ID.'; msg.style.color = '#b91c1c';
+    const res = await fetch(FORMSPREE_ACTION, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    });
+    if(res.ok){
+      document.getElementById('leadEmailForm').reset();
+      msg.textContent = 'U dërgua me sukses!';
+      msg.style.color = '#0f7a33';
+    } else {
+      let errText = 'Problem gjatë dërgimit. Provo sërish.';
+      try{
+        const j = await res.json();
+        if(j.errors && j.errors.length){ errText = j.errors[0].message; }
+      }catch(_){}
+      msg.textContent = errText;
+      msg.style.color = '#b91c1c';
+    }
+  }catch(_){
+    msg.textContent = 'Nuk u lidhëm me shërbimin. Kontrollo rrjetin dhe provo sërish.';
+    msg.style.color = '#b91c1c';
   }
   return false;
 }
@@ -606,8 +639,3 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </body>
 </html>
-
-
-
-
-

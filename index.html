@@ -637,5 +637,522 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderHomeNews(); // furnizon Updates nga LocalStorage i Newsroom
 });
 </script>
+
+  <script>
+        // === KONFIGURIMI ===
+        const GEMINI_API_KEY = 'AIzaSyD7k228IrJ8i6_aSFbYAi79bf6SXqWlDxs'; // Këtu do të vendosësh API key-in tënd
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+
+        // === KNOWLEDGE BASE ===
+        const KNOWLEDGE_BASE = `
+# DOKUMENTACIONI VODAFONE
+
+## PAKETAT INTERNET FIKS FAMILJAR
+
+### GigaFibra 100 + Vodafone TV Family
+- Shpejtësi: 100 Mbps Download / 30 Mbps Upload
+- Kanale TV: 117
+- Çmimi: 1,500 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 300 + Vodafone TV Family
+- Shpejtësi: 300 Mbps Download / 30 Mbps Upload
+- Kanale TV: 117 FALAS
+- Çmimi: 1,700 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 1000 + Vodafone TV Family
+- Shpejtësi: 1 Gbps Download / 50 Mbps Upload
+- Kanale TV: 117 FALAS
+- Çmimi: 1,900 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 100 + Vodafone TV Tring Premium
+- Shpejtësi: 100 Mbps Download / 30 Mbps Upload
+- Kanale TV: 138
+- Çmimi: 2,100 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 300 + Vodafone TV Tring Premium
+- Shpejtësi: 300 Mbps Download / 30 Mbps Upload
+- Kanale TV: 138
+- Çmimi: 2,300 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 1000 + Vodafone TV Tring Premium
+- Shpejtësi: 500 Mbps Download / 40 Mbps Upload
+- Kanale TV: 117 FALAS
+- Çmimi: 1,800 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 100 + Digitalb Familjare
+- Shpejtësi: 100 Mbps Download / 30 Mbps Upload
+- Kanale TV: 52
+- Çmimi: 1,200 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,000 Lekë
+
+### GigaFibra 300 + Digitalb Familjare
+- Shpejtësi: 300 Mbps Download / 30 Mbps Upload
+- Kanale TV: 52
+- Çmimi: 1,600 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 1000 + Digitalb Familjare
+- Shpejtësi: 1 Gbps Download / 50 Mbps Upload
+- Kanale TV: 52
+- Çmimi: 1,800 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 100 + Digitalb Premium
+- Shpejtësi: 100 Mbps Download / 30 Mbps Upload
+- Kanale TV: 58
+- Çmimi: 3,100 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 300 + Digitalb Premium
+- Shpejtësi: 300 Mbps Download / 30 Mbps Upload
+- Kanale TV: 58
+- Çmimi: 3,300 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### GigaFibra 1000 + Digitalb Premium
+- Shpejtësi: 1 Gbps Download / 50 Mbps Upload
+- Kanale TV: 58
+- Çmimi: 3,600 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### Vodafone GigaFibra 100 (Pa TV)
+- Shpejtësi: 100 Mbps Download / 30 Mbps Upload
+- Çmimi: 1,300 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### Vodafone GigaFibra 300 (Pa TV)
+- Shpejtësi: 300 Mbps Download / 30 Mbps Upload
+- Çmimi: 1,600 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+### Vodafone GigaFibra 1000 (Pa TV)
+- Shpejtësi: 1 Gbps Download / 50 Mbps Upload
+- Çmimi: 1,900 Lekë/Muaj
+- Kohëzgjatja: 24 muaj
+- Instalim: 1,500 Lekë
+
+## PAKETAT MOBILE PËR BIZNES
+
+### Business Bronze
+- Çmimi: 1,200 Lekë/Muaj
+- Internet: 10 GB
+- Minuta: 1,500
+- SMS: 1,500
+
+### Business Silver
+- Çmimi: 1,500 Lekë/Muaj
+- Internet: 25 GB
+- Minuta: 2,000
+- SMS: 2,000
+- Min/SMS Ndërkombëtare: 20
+
+### Business Gold
+- Çmimi: 1,800 Lekë/Muaj
+- Internet: 45 GB
+- Minuta: 2,500
+- SMS: 2,500
+- Min/SMS Ndërkombëtare: 30
+
+### Business Unlimited
+- Çmimi: 2,300 Lekë/Muaj
+- Internet: Pa limit
+- Minuta: Pa limit
+- SMS: Pa limit
+- Min/SMS Ndërkombëtare: 50
+- Roaming Ditor: 400 Lekë
+
+### RED Lite
+- Çmimi: 3,000 Lekë/Muaj
+- Internet: Pa limit
+- Minuta: Pa limit
+- SMS: Pa limit
+- Min/SMS Ndërkombëtare: 150
+- Roaming Ditor: 200 Lekë
+
+### RED Boost
+- Çmimi: 6,000 Lekë/Muaj
+- Internet: Pa limit
+- Minuta: Pa limit
+- SMS: Pa limit
+- Min/SMS Ndërkombëtare: 400
+- Roaming Ditor: 200 Lekë
+
+## INTERNET FIKS PËR BIZNES
+
+### Giga Fibra 100/30
+- Çmimi: 1,300 Lekë/Muaj
+- Download: 100 Mbps
+- Upload: 30 Mbps
+
+### Giga Fibra 300/30
+- Çmimi: 1,600 Lekë/Muaj
+- Download: 300 Mbps
+- Upload: 30 Mbps
+
+### Giga Fibra 1000/50
+- Çmimi: 1,900 Lekë/Muaj
+- Download: 1 Gbps
+- Upload: 50 Mbps
+
+### Giga Fibra Static Pro 100/60
+- Çmimi: 4,500 Lekë/Muaj
+- Download: 100 Mbps
+- Upload: 60 Mbps
+- IP Statike
+
+### Giga Fibra Static Pro 200/60
+- Çmimi: 5,500 Lekë/Muaj
+- Download: 200 Mbps
+- Upload: 60 Mbps
+- IP Statike
+
+### Giga Fibra Static Pro 500/60-160
+- Çmimi: 7,000 Lekë/Muaj
+- Download: 500 Mbps
+- Upload: 60-160 Mbps
+- IP Statike
+
+### Giga Fibra Static Pro 1000/200
+- Çmimi: 10,000 Lekë/Muaj
+- Download: 1000 Mbps
+- Upload: 200 Mbps
+- IP Statike
+
+### Giga Fibra Protect Prime 100/100
+- Çmimi: 45,000 Lekë/Muaj
+- Download: 100 Mbps
+- Upload: 100 Mbps
+- Mbrojtje e avancuar
+
+### Giga Fibra Protect Prime 300/300
+- Çmimi: 66,000 Lekë/Muaj
+- Download: 300 Mbps
+- Upload: 300 Mbps
+- Mbrojtje e avancuar
+
+### Giga Fibra Protect Prime 500/500
+- Çmimi: 90,000 Lekë/Muaj
+- Download: 500 Mbps
+- Upload: 500 Mbps
+- Mbrojtje e avancuar
+
+### Giga Fibra Protect Prime 1 Gbps
+- Çmimi: 180,000 Lekë/Muaj
+- Download: 1 Gbps
+- Upload: 1 Gbps
+- Mbrojtje e avancuar
+
+## DOKUMENTET E NEVOJSHME
+
+### Klient Rezidencial (Internet Fiks)
+- Pasaportë ose Kartë Identiteti
+- Adresa fizike
+- Numër kontakti
+- Adresë email
+
+### Klient Biznes (Internet Fiks)
+- Pasaportë ose Kartë Identiteti
+- Adresa fizike
+- Numër kontakti
+- Ekstrakt nga Regjistri Tregtar (me NIPT)
+- Adresë email
+
+### Klient Biznes Mobile (Aktivizim i Ri)
+- Pasaportë ose Kartë Identiteti e administratorit
+- Ekstrakt nga Regjistri Tregtar (me NIPT)
+- Numër kontakti
+- Adresa fizike
+- Adresë email
+
+### Klient Biznes Mobile (Portabilitet)
+- Pasaportë ose Kartë Identiteti e administratorit
+- Pasaportë ose Kartë Identiteti e përdoruesit aktual
+- Ekstrakt nga Regjistri Tregtar (me NIPT)
+- Numër kontakti
+- Adresa fizike
+- Kërkesë zyrtare për portabilitet (me vulë dhe firmë)
+
+## PYETJE TË SHPESHTA VOLTON
+
+### Çfarë është Volton?
+Volton është një kompani private shqiptare e licencuar nga ERE që ofron furnizim me energji elektrike për klientë në tension të mesëm dhe të lartë (10kV, 20kV, 35kV dhe 110kV).
+
+### Çfarë do të thotë liberalizimi i tregut të energjisë?
+Liberalizimi do të thotë që bizneset mund të zgjedhin vetë furnizuesin e tyre të energjisë elektrike në tregun e lirë.
+
+### Kush duhet të kalojë në tregun e lirë?
+Bizneset që furnizohen në tension 110kV, 35kV, 20kV dhe 10kV janë të detyruara të kalojnë në tregun e lirë sipas afateve të përcaktuara.
+
+### Përfitimet e kalimit te Volton
+- Çmime konkurruese dhe të pandryshme
+- Fleksibilitet në kontrata
+- Shërbim i personalizuar për çdo klient
+
+### A ndryshon cilësia e energjisë?
+Jo. Cilësia mbetet e njëjtë pasi infrastruktura e shpërndarjes është e njëjtë (OSHEE).
+
+### Si të bëhem klient i Volton?
+Kontaktoni në numrin 069 400 4064 për një konsultë të personalizuar dhe falas.
+
+### A ka penalitete për kalimin nga OSHEE?
+Jo, kalimi është i lirë dhe i garantuar me ligj për klientët që përmbushin kriteret.
+
+### Sa zgjat procesi i kalimit?
+Procesi është i shkurtër dhe transparent, mjafton një vërtetim debije dhe kontrata e firmosur.
+
+### A mund të rikthehem te OSHEE?
+Po, duke qenë pjesë e subjekteve që përfitojnë të zgjedhin vetë operatorin në tregun e lirë.
+
+### Kontakt Volton
+Telefon: 069 400 4064
+Adresë: Rruga "Rezervat e Shtetit", Lundër 1, Tiranë
+
+## INFORMACIONE SHTESË
+
+### Kushtet e Përgjithshme
+- Çmimet përfshijnë TVSH
+- Minutat dhe SMS vlejnë për të gjithë operatorët kombëtarë
+- Pas konsumimit të internetit, shpejtësia reduktohet në 256 Kbps
+- Tarifimi i thirrjeve: 30 sekonda fillestare, më pas për sekondë
+- Internet: tarifim për çdo 10 KB
+- Pagesa mujore aplikohet në fund të muajit
+- Përfitimet nuk transferohen në muajin pasardhës
+
+### Politika e Përdorimit të Drejtë
+- Business Unlimited: 200 GB internet, 15,000 minuta, 3,000 SMS
+- RED Lite: 300 GB internet, 3,000 SMS
+- RED Boost: 600 GB internet, 5,000 SMS
+
+### Zbritje për Biznes
+- Vetëm shërbim fiks: 20% për Static, 30% për Protect
+- Me shërbime Mobile ose B&C: 30% për Static, 40% për Protect
+`;
+
+        // === DOM ELEMENTS ===
+        const chatbotButton = document.getElementById('chatbot-button');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const closeBtn = document.getElementById('close-btn');
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // === STATE ===
+        let conversationHistory = [];
+
+        // === EVENT LISTENERS ===
+        chatbotButton.addEventListener('click', () => {
+            chatbotContainer.classList.add('active');
+            userInput.focus();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            chatbotContainer.classList.remove('active');
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // === FUNCTIONS ===
+        function sendQuickMessage(message) {
+            userInput.value = message;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            
+            if (!message) return;
+            
+            // Kontrollo API key
+            if (GEMINI_API_KEY === 'VENDOS_API_KEY_KETU') {
+                showError('Ju lutem vendosni API key-in tuaj të Gemini në kodin burimor.');
+                return;
+            }
+
+            // Pastro input
+            userInput.value = '';
+            sendBtn.disabled = true;
+
+            // Shto mesazhin e përdoruesit
+            addMessage(message, 'user');
+
+            // Shto typing indicator
+            showTypingIndicator();
+
+            try {
+                // Përgatit kontekstin
+                const systemPrompt = `Ti je një asistent virtual i Vodafone Albania. Detyra jote është të ndihmosh klientët me informacione për shërbimet, paketat, çmimet dhe proceset e Vodafone.
+
+RREGULLA TË RËNDËSISHME:
+1. Përdor vetëm informacionin nga dokumentacioni i dhënë
+2. Përgjigju VETËM në gjuhën shqipe
+3. Ji miqësor, profesional dhe i qartë
+4. Nëse nuk ke informacion, sugjero të kontaktojnë Vodafone direkt
+5. Formatimi: Përdor paragrafë të shkurtër dhe liste kur është e nevojshme
+6. Mos shpik informacione - vetëm ato që janë në dokumentacion
+
+DOKUMENTACIONI:
+${KNOWLEDGE_BASE}
+
+Tani përgjigju pyetjes së klientit në mënyrë të qartë dhe të dobishme.`;
+
+                // Krijo mesazhin për API
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                role: 'user',
+                                parts: [
+                                    { text: systemPrompt },
+                                    { text: `\n\nPyetja e klientit: ${message}` }
+                                ]
+                            }
+                        ],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 1024,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Merr përgjigjen
+                const botResponse = data.candidates[0].content.parts[0].text;
+
+                // Fshi typing indicator dhe shto përgjigjen
+                hideTypingIndicator();
+                addMessage(botResponse, 'bot');
+
+            } catch (error) {
+                console.error('Error:', error);
+                hideTypingIndicator();
+                showError('Ka ndodhur një gabim. Ju lutem provoni përsëri.');
+            } finally {
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = sender === 'user' ? 'JU' : 'V';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // Format text për shfaqje më të mirë
+            contentDiv.innerHTML = formatMessage(text);
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+
+            // Hiq welcome message nëse ekziston
+            const welcomeMsg = chatMessages.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function formatMessage(text) {
+            // Konverto markdown të thjeshtë në HTML
+            let formatted = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            
+            return `<p>${formatted}</p>`;
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'message bot';
+            indicator.id = 'typing-indicator-msg';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = 'V';
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator active';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            
+            indicator.appendChild(avatar);
+            indicator.appendChild(typingDiv);
+            chatMessages.appendChild(indicator);
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator-msg');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            chatMessages.appendChild(errorDiv);
+            scrollToBottom();
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // === INITIALIZATION ===
+        console.log('Vodafone Chatbot i gatshëm!');
+        console.log('Mos harroni të vendosni API key-in tuaj të Google Gemini.');
+    </script>
+
 </body>
 </html>
+
